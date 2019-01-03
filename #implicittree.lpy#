@@ -1,0 +1,54 @@
+from skeleton import *
+import random
+
+def implicit_interpretation(lstring): 
+    """
+    This function is called at the end of the simulation by Lpy and with the resulting lstring and lscene as parameters
+    """
+    #print lstring
+    if isFrameDisplayed():
+        s = Skeleton()
+        for i, mod in enumerate(lstring): 
+            if mod.name == 'F':
+                assert lstring[i-2].name == '?P'
+                p0 = lstring[i-2][0] # Access to first argument of module ?P
+      
+                assert lstring[i+1].name == '?P'
+                p1 = lstring[i+1][0] # Access to first argument of module ?P
+
+                assert lstring[i-1].name == '_'
+                r = lstring[i-1][0] # Access to first argument of module _
+
+                s.add_segment(p0,p1,r)
+        
+        # To save the skeleton
+        # s.write('myskeleton.txt')
+        
+        bbx = s.bbox()
+        h = ceil(bbx[2][1])*2
+        dh = 0.1
+        h /= dh        
+        return lstring, s.implicit_surface().pgl_surface_mesh(h,dh,0.1)
+
+def EndEach(lstring, lscene): 
+   return implicit_interpretation(lstring)
+
+def End(lstring, lscene):
+   return implicit_interpretation(lstring)
+
+module S(l,r)
+
+Axiom: A(1)
+production:
+derivation length: 6
+
+A(x):
+  nb = random.randint(3,5)
+  size = 1 #random.uniform(0.1,1)
+  nproduce S(size,0.5/(x+1))
+  for i in xrange(nb):
+    nproduce [/(i*360./nb) ^(30) A(x+1)]
+decomposition:
+S(l,r) --> ?P() _(r) F(l) ?P()
+
+endlsystem
